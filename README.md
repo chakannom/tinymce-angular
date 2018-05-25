@@ -11,7 +11,7 @@ The editor component itselt is located in the `tinymce-angular-component` and pa
 ## Installation
 
 ```sh
-$ npm install https://github.com/chakannom/tinymce-angular.git#v2.0.1
+$ npm install git+https://github.com/chakannom/tinymce-angular.git#v2.0.1
 ```
 
 ## Usage
