@@ -1,7 +1,8 @@
-import { NgModule } from '@angular/core';
+import { NgModule, ModuleWithProviders } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
+import { EditorOptions } from './editor.options';
 import { EditorComponent } from './editor.component';
 
 @NgModule({
@@ -9,4 +10,13 @@ import { EditorComponent } from './editor.component';
   declarations: [EditorComponent],
   exports: [EditorComponent]
 })
-export class EditorModule {}
+export class EditorModule {
+    static forRoot(options: EditorOptions): ModuleWithProviders {
+        return {
+            ngModule: EditorModule,
+            providers: [
+                { provide: EditorOptions, useValue: options }
+            ],
+        };
+    }
+}

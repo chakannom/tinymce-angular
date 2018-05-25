@@ -1,4 +1,4 @@
-# Official TinyMCE Angular Component
+# TinyMCE Angular Component
 
 ## About
 
@@ -11,7 +11,7 @@ The editor component itselt is located in the `tinymce-angular-component` and pa
 ## Installation
 
 ```sh
-$ npm install @tinymce/tinymce-angular
+$ npm install https://github.com/chakannom/tinymce-angular.git#v2.0.1
 ```
 
 ## Usage
@@ -21,7 +21,7 @@ $ npm install @tinymce/tinymce-angular
 Import the `EditorModule` from the npm package like this:
 
 ```tsx
-import { EditorModule } from '@tinymce/tinymce-angular';
+import { EditorModule } from '@chakannom/tinymce-angular';
 ```
 And add it to you application module:
 
@@ -34,7 +34,9 @@ And add it to you application module:
   ],
   imports: [
     BrowserModule,
-    EditorModule // <- Important part
+    EditorModule.forRoot({
+        baseURL: 'https://cdnjs.cloudflare.com/ajax/libs/tinymce/4.7.13/' // <- Option 
+    }); // <- Important part
   ],
   providers: [],
   bootstrap: [AppComponent]
@@ -44,6 +46,13 @@ And add it to you application module:
 ### Using the component in your templates
 
 Use the editor in your templates like this:
+
+for Self-hosted
+
+```tsx
+<editor [init]="{plugins: 'link'}"></editor>
+```
+for TinyMCE cloud
 
 ```tsx
 <editor apiKey="test" [init]="{plugins: 'link'}"></editor>

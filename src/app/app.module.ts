@@ -7,7 +7,13 @@ import { EditorModule } from '../../tinymce-angular-component/src/editor/editor.
 
 @NgModule({
   declarations: [AppComponent],
-  imports: [BrowserModule, EditorModule, FormsModule],
+  imports: [
+      EditorModule.forRoot({
+          baseURL: 'https://cdnjs.cloudflare.com/ajax/libs/tinymce/4.7.13/'
+      }),
+      BrowserModule,
+      FormsModule
+  ],
   providers: [],
   bootstrap: [AppComponent]
 })

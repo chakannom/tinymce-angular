@@ -5,6 +5,7 @@ import * as ScriptLoader from '../utils/ScriptLoader';
 import { uuid, isTextarea, bindHandlers, mergePlugins } from '../utils/Utils';
 import { getTinymce } from '../TinyMCE';
 import { Events } from './Events';
+import { EditorOptions } from './editor.options';
 
 const scriptState = ScriptLoader.create();
 
@@ -24,6 +25,7 @@ export class EditorComponent extends Events implements AfterViewInit, ControlVal
   private elementRef: ElementRef;
   private element: Element | undefined = undefined;
   private editor: any;
+  private options: EditorOptions;
 
   ngZone: NgZone;
 
@@ -40,9 +42,10 @@ export class EditorComponent extends Events implements AfterViewInit, ControlVal
   private onTouchedCallback = () => {};
   private onChangeCallback = (x: any) => {};
 
-  constructor(elementRef: ElementRef, ngZone: NgZone) {
+  constructor(elementRef: ElementRef, options: EditorOptions, ngZone: NgZone) {
     super();
     this.elementRef = elementRef;
+    this.options = options;
     this.ngZone = ngZone;
     this.initialise = this.initialise.bind(this);
   }
@@ -78,11 +81,17 @@ export class EditorComponent extends Events implements AfterViewInit, ControlVal
     if (getTinymce() !== null) {
       this.initialise();
     } else if (this.element) {
+      let tinymcsURL;
       const doc = this.element.ownerDocument;
-      const channel = this.cloudChannel || 'stable';
-      const apiKey = this.apiKey || '';
+      if (this.options.baseURL) {
+        tinymcsURL = this.options.baseURL + 'tinymce.min.js';
+      } else {
+        const channel = this.cloudChannel || 'stable';
+        const apiKey = this.apiKey || '';
+        tinymcsURL = `https://cloud.tinymce.com/${channel}/tinymce.min.js?apiKey=${apiKey}`;
+      }
 
-      ScriptLoader.load(scriptState, doc, `https://cloud.tinymce.com/${channel}/tinymce.min.js?apiKey=${apiKey}`, this.initialise);
+      ScriptLoader.load(scriptState, doc, tinymcsURL, this.initialise);
     }
   }
 
