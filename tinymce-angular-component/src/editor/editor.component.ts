@@ -1,11 +1,11 @@
-import { Component, AfterViewInit, Input, ElementRef, OnDestroy, forwardRef, NgZone } from '@angular/core';
+import { Component, AfterViewInit, Input, ElementRef, OnDestroy, forwardRef, NgZone, Inject, PLATFORM_ID } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import * as ScriptLoader from '../utils/ScriptLoader';
 import { uuid, isTextarea, bindHandlers, mergePlugins } from '../utils/Utils';
 import { getTinymce } from '../TinyMCE';
 import { Events } from './Events';
-import { EditorOptions } from './editor.options';
+import { isPlatformBrowser } from '@angular/common';
 
 const scriptState = ScriptLoader.create();
 
@@ -25,10 +25,10 @@ export class EditorComponent extends Events implements AfterViewInit, ControlVal
   private elementRef: ElementRef;
   private element: Element | undefined = undefined;
   private editor: any;
-  private options: EditorOptions;
 
   ngZone: NgZone;
 
+  @Input() baseUrl: string | undefined;
   @Input() cloudChannel: string | undefined;
   @Input() apiKey: string | undefined;
   @Input() init: { [key: string]: any } | undefined;
@@ -38,20 +38,32 @@ export class EditorComponent extends Events implements AfterViewInit, ControlVal
   @Input() tagName: string | undefined;
   @Input() plugins: string | undefined;
   @Input() toolbar: string | string[] | null = null;
+  
+  private _disabled: boolean | undefined;
+  @Input()
+  set disabled(val) {
+    this._disabled = val;
+    if (this.editor && this.editor.initialized) {
+      this.editor.setMode(val ? 'readonly' : 'design');
+    }
+  }
+  get disabled() {
+    return this._disabled;
+  }
 
   private onTouchedCallback = () => {};
   private onChangeCallback = (x: any) => {};
 
-  constructor(elementRef: ElementRef, options: EditorOptions, ngZone: NgZone) {
+  constructor(elementRef: ElementRef, ngZone: NgZone, @Inject(PLATFORM_ID) private platformId: Object) {
     super();
     this.elementRef = elementRef;
-    this.options = options;
     this.ngZone = ngZone;
     this.initialise = this.initialise.bind(this);
   }
 
   writeValue(value: string | null): void {
     this.initialValue = value || this.initialValue;
+    value = value || '';
 
     if (this.editor && this.editor.initialized && typeof value === 'string') {
       this.editor.setContent(value);
@@ -75,23 +87,26 @@ export class EditorComponent extends Events implements AfterViewInit, ControlVal
   }
 
   ngAfterViewInit() {
-    this.id = this.id || uuid('tiny-react');
-    this.inline = typeof this.inline !== 'undefined' ? this.inline : this.init && this.init.inline;
-    this.createElement();
-    if (getTinymce() !== null) {
-      this.initialise();
-    } else if (this.element) {
-      let tinymcsURL;
-      const doc = this.element.ownerDocument;
-      if (this.options.baseURL) {
-        tinymcsURL = this.options.baseURL + 'tinymce.min.js';
-      } else {
-        const channel = this.cloudChannel || 'stable';
-        const apiKey = this.apiKey || '';
-        tinymcsURL = `https://cloud.tinymce.com/${channel}/tinymce.min.js?apiKey=${apiKey}`;
-      }
+    if (isPlatformBrowser(this.platformId)) {
+      this.id = this.id || uuid('tiny-angular');
+      this.inline =
+        typeof this.inline !== 'undefined' ? (typeof this.inline === 'boolean' ? this.inline : true) : this.init && this.init.inline;
+      this.createElement();
+      if (getTinymce() !== null) {
+        this.initialise();
+      } else if (this.element && this.element.ownerDocument) {
+        let tinymceURL;
+        const doc = this.element.ownerDocument;
+        if (this.baseUrl !== undefined) {
+          tinymceURL = this.baseUrl.replace(/\/$|$/, '/') + 'tinymce.min.js';
+        } else {
+          const channel = this.cloudChannel || 'stable';
+          const apiKey = this.apiKey || '';
+          tinymceURL = `https://cloud.tinymce.com/${channel}/tinymce.min.js?apiKey=${apiKey}`;
+        }
 
-      ScriptLoader.load(scriptState, doc, tinymcsURL, this.initialise);
+        ScriptLoader.load(scriptState, doc, tinymceURL, this.initialise);
+      }
     }
   }
 
@@ -116,8 +131,9 @@ export class EditorComponent extends Events implements AfterViewInit, ControlVal
   initialise() {
     const finalInit = {
       ...this.init,
-      selector: `#${this.id}`,
+      target: this.element,
       inline: this.inline,
+      readonly: this.disabled,
       plugins: mergePlugins(this.init && this.init.plugins, this.plugins),
       toolbar: this.toolbar || (this.init && this.init.toolbar),
       setup: (editor: any) => {
@@ -145,7 +161,7 @@ export class EditorComponent extends Events implements AfterViewInit, ControlVal
     if (typeof this.initialValue === 'string') {
       this.ngZone.run(() => editor.setContent(this.initialValue));
     }
-    editor.once('blur', () => this.ngZone.run(() => this.onTouchedCallback()));
+    editor.on('blur', () => this.ngZone.run(() => this.onTouchedCallback()));
     editor.on(
       'setcontent',
       ({ content, format }: any) => format === 'html' && content && this.ngZone.run(() => this.onChangeCallback(content))
