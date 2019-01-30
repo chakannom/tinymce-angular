@@ -1,8 +1,8 @@
 {
-  "name": "@tinymce/tinymce-angular",
+  "name": "chakannom-tinymce-angular",
   "version": "2.5.0",
-  "description": "Official TinyMCE Angular Component",
-  "author": "Ephox Inc",
+  "description": "TinyMCE Angular Component",
+  "author": "ChaKanNom",
   "license": "Apache-2.0",
   "scripts": {
     "clean": "rimraf lib",

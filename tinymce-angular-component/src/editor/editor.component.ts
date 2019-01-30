@@ -28,6 +28,7 @@ export class EditorComponent extends Events implements AfterViewInit, ControlVal
 
   ngZone: NgZone;
 
+  @Input() baseUrl: string | undefined;
   @Input() cloudChannel: string | undefined;
   @Input() apiKey: string | undefined;
   @Input() init: { [key: string]: any } | undefined;
@@ -37,7 +38,7 @@ export class EditorComponent extends Events implements AfterViewInit, ControlVal
   @Input() tagName: string | undefined;
   @Input() plugins: string | undefined;
   @Input() toolbar: string | string[] | null = null;
-
+  
   private _disabled: boolean | undefined;
   @Input()
   set disabled(val) {
@@ -94,11 +95,17 @@ export class EditorComponent extends Events implements AfterViewInit, ControlVal
       if (getTinymce() !== null) {
         this.initialise();
       } else if (this.element && this.element.ownerDocument) {
+        let tinymceURL;
         const doc = this.element.ownerDocument;
-        const channel = this.cloudChannel || 'stable';
-        const apiKey = this.apiKey || '';
+        if (this.baseUrl !== undefined) {
+          tinymceURL = this.baseUrl.replace(/\/$|$/, '/') + 'tinymce.min.js';
+        } else {
+          const channel = this.cloudChannel || 'stable';
+          const apiKey = this.apiKey || '';
+          tinymceURL = `https://cloud.tinymce.com/${channel}/tinymce.min.js?apiKey=${apiKey}`;
+        }
 
-        ScriptLoader.load(scriptState, doc, `https://cloud.tinymce.com/${channel}/tinymce.min.js?apiKey=${apiKey}`, this.initialise);
+        ScriptLoader.load(scriptState, doc, tinymceURL, this.initialise);
       }
     }
   }

@@ -1,6 +1,7 @@
 # 2.5.0
 
 * Add EditorComponent to public api.
+* (Modified by ChaKanNom 2019-01-30) Added `baseUrl` attribute, so you can now do this: `<editor baseUrl="http://../tinymce/4.7.13/"></editor>`.
 
 # 2.4.1
 
