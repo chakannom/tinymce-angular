@@ -2,7 +2,9 @@
 
 ## About
 
-This package is a thin wrapper around `tinymce` to make it easier to use in a Angular application. 
+This package is a thin wrapper around `tinymce` to make it easier to use in an Angular application.
+
+For some quick demos, check out the [storybook](https://tinymce.github.io/tinymce-angular/).
 
 ## Development instructions
 
@@ -61,13 +63,14 @@ for TinyMCE cloud
 ### Configuring the editor
 
 The editor accepts the following inputs:
-* `id`: An id for the editor so you can later grab the instance by using the `tinymce.get('ID')` method on tinymce, defaults to an automatically generated uuid. 
+* `disabled`: Using this input that takes a boolean value you can dynamically set the editor into a "disabled" readonly mode or into the normal editable mode.
+* `id`: An id for the editor so you can later grab the instance by using the `tinymce.get('ID')` method on tinymce, defaults to an automatically generated uuid.
 * `init`: Object sent to the `tinymce.init` method used to initialize the editor.
 * `initialValue`: Initial value that the editor will be initialized with.
 * `inline`: Shorthand for setting that the editor should be inline, `<editor [inline]="true"></editor>` is the same as setting `{inline: true}` in the init.
 * `tagName`: Only used if the editor is inline, decides what element to initialize the editor on, defaults to `div`.
 * `plugins`: Shorthand for setting what plugins you want to use, `<editor plugins="foo bar"></editor>` is the same as setting `{plugins: 'foo bar'}` in the init.
-* `toolbar`: Shorthand for setting what toolbar items you want to show, `<editor toolbar="foo bar"></editor>` is the same as setting `{toolbar: 'foo bar'}` in the init. 
+* `toolbar`: Shorthand for setting what toolbar items you want to show, `<editor toolbar="foo bar"></editor>` is the same as setting `{toolbar: 'foo bar'}` in the init.
 * `apiKey`: Api key for TinyMCE cloud, more info below.
 * `cloudChannel`: Cloud channel for TinyMCE Cloud, more info below.
 
@@ -81,11 +84,21 @@ You can also use the `ngModel` directive (more info in the [Angular documentatio
 <editor [(ngModel)]="dataModel"></editor>
 ```
 
+### Using with reactive forms
+
+The component also works with reactive forms (see [Angular documentation](https://angular.io/guide/reactive-forms))).
+
+For example it can be used with the `formControlName` directive like this, placed inside a `formGroup`:
+
+```tsx
+<editor [formControlName]="schema.key" [init]="{plugins: 'link'}></editor>
+```
+
 ### Event binding
 
 You can also bind editor events via a shorthand prop on the editor, for example:
 ```tsx
-<editor (onSelectionChange)="handleEvent($eventObj)"></editor>
+<editor (onSelectionChange)="handleEvent($event)"></editor>
 ```
 Where the handler gets called with an object containing the properties `event`, which is the event object, and `editor`, which is a reference to the editor.
 
@@ -159,7 +172,7 @@ Here is a full list of the events available:
 
 ## Loading TinyMCE
 ### Auto-loading from TinyMCE Cloud
-The `Editor` component needs TinyMCE to be globally available to work, but to make it as easy as possible it will automatically load [TinyMCE Cloud](https://www.tinymce.com/docs/get-started-cloud/) if it can't find TinyMCE available when the component has mounted. To get rid of the `This domain is not registered...` warning, sign up for the cloud and enter the api key like this:
+The `Editor` component needs TinyMCE to be globally available to work, but to make it as easy as possible it will automatically load [TinyMCE Cloud](https://www.tiny.cloud/docs/cloud-deployment-guide/) if it can't find TinyMCE available when the component has mounted. To get rid of the `This domain is not registered...` warning, sign up for the cloud and enter the api key like this:
 
 ```tsx
 <editor apiKey="test" [init]="{/* your settings */}"></editor>
@@ -176,9 +189,38 @@ So using the `dev` channel would look like this:
 <editor apiKey="YOUR_API_KEY" cloudChannel="dev" [init]="{/* your settings */}"></editor>
 ```
 
-For more info on the different versions see the [documentation](https://www.tinymce.com/docs/get-started-cloud/editor-plugin-version/#devtestingandstablereleases).
+For more info on the different versions see the [documentation](https://www.tiny.cloud/docs/cloud-deployment-guide/editor-plugin-version/#devtestingandstablereleases).
 
 ### Loading TinyMCE by yourself
 
 To opt out of using TinyMCE cloud you have to make TinyMCE globally available yourself. This can be done either by hosting the `tinymce.min.js` file by youself and adding a script tag to you HTML or, if you are using a module loader, installing TinyMCE with npm. For info on how to get TinyMCE working with module loaders check out [this page in the documentation](https://www.tinymce.com/docs/advanced/usage-with-module-loaders/).
+Following step by step guide outlines the process of loading TinyMCE and TinyMCE-Angular in your local Angular project.
 
+* Install TinyMCE using NPM
+  * `npm install --save tinymce`
+* In your `angular.json`, add `tinymce.min.js`, your desired theme (`.js`) and all required plugins in the "scripts" list of your Angular build declaration
+  * To get karma tests working, provide `tinymce.min.js` in the "scripts" lists of "test". Depending on your text fixture, you might want to add plugins as well.
+  * Your script list might look like the following:
+  ```tsx
+  "scripts": [
+    "node_modules/tinymce/tinymce.min.js",
+    "node_modules/tinymce/themes/modern/theme.js",
+    "node_modules/tinymce/plugins/fullscreen/plugin.js",
+  ]
+  ```
+* To get TinyMCE themes and styles, you need to provide them manually, i.e. by copying them into your assets folder.
+  * `cp -r node_modules/tinymce/skins src/assets/tinymce/skins`
+* Finally, configure the `<editor>` to use the local skin files by using the `skin_url` setting:
+  ```tsx
+  public tinyMceSettings = {
+    skin_url: '/assets/tinymce/skins/lightgray',
+    inline: false,
+    statusbar: false,
+    browser_spellcheck: true,
+    height: 320,
+    plugins: 'fullscreen',
+  };
+  ```
+  ```tsx
+  <editor [init]="tinyMceSettings"></editor>
+  ```
