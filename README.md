@@ -36,9 +36,7 @@ And add it to you application module:
   ],
   imports: [
     BrowserModule,
-    EditorModule.forRoot({
-        baseURL: 'https://cdnjs.cloudflare.com/ajax/libs/tinymce/4.7.13/' // <- Option 
-    }); // <- Important part
+    EditorModule
   ],
   providers: [],
   bootstrap: [AppComponent]
@@ -52,7 +50,7 @@ Use the editor in your templates like this:
 for Self-hosted
 
 ```tsx
-<editor [init]="{plugins: 'link'}"></editor>
+<editor baseUrl="https://cdnjs.cloudflare.com/ajax/libs/tinymce/4.7.13/" [init]="{plugins: 'link'}"></editor>
 ```
 for TinyMCE cloud
 
