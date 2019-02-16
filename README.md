@@ -36,7 +36,7 @@ And add it to you application module:
   ],
   imports: [
     BrowserModule,
-    EditorModule
+    EditorModule // <- Important part
   ],
   providers: [],
   bootstrap: [AppComponent]

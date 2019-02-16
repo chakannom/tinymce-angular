@@ -38,7 +38,7 @@ export class EditorComponent extends Events implements AfterViewInit, ControlVal
   @Input() tagName: string | undefined;
   @Input() plugins: string | undefined;
   @Input() toolbar: string | string[] | null = null;
-  
+
   private _disabled: boolean | undefined;
   @Input()
   set disabled(val) {

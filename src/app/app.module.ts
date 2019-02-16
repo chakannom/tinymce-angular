@@ -7,11 +7,7 @@ import { EditorModule } from '../../tinymce-angular-component/src/editor/editor.
 
 @NgModule({
   declarations: [AppComponent],
-  imports: [
-      EditorModule,
-      BrowserModule,
-      FormsModule
-  ],
+  imports: [BrowserModule, EditorModule, FormsModule],
   providers: [],
   bootstrap: [AppComponent]
 })
