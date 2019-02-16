@@ -29,9 +29,9 @@ export class EditorComponent extends Events implements AfterViewInit, ControlVal
   ngZone: NgZone;
 
   @Input() baseUrl: string | undefined;
-  @Input() cloudChannel: string | undefined;
-  @Input() apiKey: string | undefined;
-  @Input() init: { [key: string]: any } | undefined;
+  @Input() cloudChannel = '5';
+  @Input() apiKey = '';
+  @Input() init: Record<string, any> | undefined;
   @Input() id = '';
   @Input() initialValue: string | undefined;
   @Input() inline: boolean | undefined;
@@ -100,8 +100,8 @@ export class EditorComponent extends Events implements AfterViewInit, ControlVal
         if (this.baseUrl !== undefined) {
           tinymceURL = this.baseUrl.replace(/\/$|$/, '/') + 'tinymce.min.js';
         } else {
-          const channel = this.cloudChannel || 'stable';
-          const apiKey = this.apiKey || '';
+          const channel = this.cloudChannel;
+          const apiKey = this.apiKey;
           tinymceURL = `https://cloud.tinymce.com/${channel}/tinymce.min.js?apiKey=${apiKey}`;
         }
 

@@ -1,7 +1,7 @@
 {
   "name": "chakannom-tinymce-angular",
   "description": "TinyMCE Angular Component",
-  "version": "2.5.3",
+  "version": "3.0.0",
   "repository": "https://github.com/chakannom/tinymce-angular.git",
   "author": "ChaKanNom",
   "license": "Apache-2.0",
